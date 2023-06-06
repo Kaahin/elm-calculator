@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap');
+
+.calculator {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(7, min-content);
+  gap: 2px;
+  grid-template-areas:
+    "display-container"
+    "button-container"
+    "button-container"
+    "button-container"
+    "button-container"
+    "button-container";
+  width: 500px;
+  background: #a2bbcf ;
+  padding: 2px;
+  border-left: 5px solid #000000;
+  border-right: 5px solid #000000;
+
+}
+
+.display-container {
+  grid-column: span 4;
+  padding: 20px;
+  text-align: right;
+  grid-area: "display-container";
+  height: 200px;
+  font-family: 'Roboto Mono', monospace;
+
+}
+
+.upperDisplay {
+  height: 30%;
+  font-size: 2em;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-weight: 400;
+  color: #000000;
+}
+
+.lowerDisplay {
+  height: 70%;
+  font-size: 3em;
+  border-top: 2px solid black;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-weight: 500;
+  color: #205b7a;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  grid-area: "button-container";
+  grid-column: span 4;
+  gap: 2px;
+}
+
+.button {
+  width: 100%;
+  padding: 20px;
+  font-size: 2em;
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
+}
+
+.ce-button {
+  color: #ffffff;
+  background: #d00000;
+}
+
+.c-button {
+  color: #ffffff;
+  background: #d00000;
+}
+
+.operation-button {
+  color: #205b7a;
+  background: #a2bbcf;
+}
+
+.operand-button {
+  color: #ffffff;
+  background: #205b7a;
+}
+
+.dot-button {
+  color: #ffffff;
+  background: #205b7a;
+}
