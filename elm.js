@@ -5517,7 +5517,7 @@ var $author$project$Main$view = function (model) {
 							[
 								$elm$html$Html$Attributes$class('button operand-button'),
 								$elm$html$Html$Events$onClick(
-								$author$project$Main$AppendToOperand(0.0))
+								$author$project$Main$AppendToOperand(0))
 							]),
 						_List_fromArray(
 							[
