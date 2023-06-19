@@ -139,7 +139,7 @@ view model =
                 ++ [ button [ class "button operation-button", onClick <| UpdateOperator Sub ] [ text (String.fromChar (Char.fromCode 0x2212)) ] ]
             )
         , div [ class "button-container" ]
-            [ button [ class "button operand-button", onClick <| AppendToOperand 0.0 ] [ text "0" ]
+            [ button [ class "button operand-button", onClick <| AppendToOperand 0 ] [ text "0" ]
             , div [ class "button block" ] []
             , button [ class "button operation-button", onClick Calculate ] [ text (String.fromChar (Char.fromCode 0x3D)) ]
             , button [ class "button operation-button", onClick <| UpdateOperator Add ] [ text (String.fromChar (Char.fromCode 0x2B)) ]
