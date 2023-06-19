@@ -13,7 +13,7 @@
     "button-container"
     "button-container";
   width: 500px;
-  background: #a2bbcf ;
+  background: #a2bbcf;
   padding: 2px;
   border-left: 5px solid #000000;
   border-right: 5px solid #000000;
@@ -89,7 +89,7 @@
   background: #205b7a;
 }
 
-.dot-button {
+.block {
   color: #ffffff;
   background: #205b7a;
 }

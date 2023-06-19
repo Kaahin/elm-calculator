@@ -1,123 +1,152 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, input, text)
+import Char
+import Html exposing (Html, button, div, text)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import String
-import Char
+
+
+type Operator
+    = Add
+    | Sub
+    | Mult
+    | Div
+    | None
 
 
 type alias Model =
-    { operand1 : String
-    , operand2 : String
-    , operator : String
+    { operand1 : Float
+    , operand2 : Float
+    , operator : Operator
     , result : String
     , upperDisplay : String
     , lowerDisplay : String
     }
 
+
 init : Model
-init = 
-    { operand1 = ""
-    , operand2 = ""
-    , operator = ""
+init =
+    { operand1 = 0
+    , operand2 = 0
+    , operator = None
     , result = ""
     , upperDisplay = ""
-    , lowerDisplay = "0"    
+    , lowerDisplay = "0"
     }
 
+
 type Msg
-    = AppendToOperand String
+    = AppendToOperand Float
     | Clear
     | ClearEntry
-    | UpdateOperator String
+    | UpdateOperator Operator
     | Calculate
 
+
 update : Msg -> Model -> Model
-update msg model = 
-    case msg of 
-        AppendToOperand operand ->
-            if operand == "." && String.contains "." model.lowerDisplay then
-                model
-            else
-                if model.operator == "" then
-                    let updatedOperand1 = model.operand1 ++ operand
-                    in { model | operand1 = updatedOperand1, lowerDisplay = updatedOperand1 }
-                else
-                    let updatedOperand2 = model.operand2 ++ operand
-                    in { model | operand2 = updatedOperand2, lowerDisplay = updatedOperand2 }
-            
-        Clear -> 
-            { operand1 = "", operand2 = "", operator = "", result = "", upperDisplay = "", lowerDisplay = "0" }
+update msg model =
+    case msg of
+        AppendToOperand num ->
+            if model.operator == None then
+                { model | operand1 = model.operand1 * 10 + num, lowerDisplay = String.fromFloat (model.operand1 * 10 + num) }
 
-        ClearEntry -> 
-            if model.result /=  "" then 
-                { operand1 = "", operand2 = "", operator = "", result = "", upperDisplay = "", lowerDisplay = "0" }
-            else if model.operator /= "" then
-                { model | operand2 = "", operator = "", upperDisplay = model.operand1, lowerDisplay = "0"}
             else
-                { model | operand1 = "", lowerDisplay = "0"}
+                { model | operand2 = model.operand2 * 10 + num, lowerDisplay = String.fromFloat (model.operand2 * 10 + num) }
 
-        UpdateOperator op -> 
-            { model | operator = op, upperDisplay = model.operand1 ++ " " ++ op }
-        
-        Calculate -> 
-            let 
-                o1 = String.toFloat model.operand1 |> Maybe.withDefault 0
-                o2 = String.toFloat model.operand2 |> Maybe.withDefault 0
+        Clear ->
+            init
+
+        ClearEntry ->
+            if model.result /= "" then
+                init
+
+            else if model.operator /= None then
+                { model | operand2 = 0, operator = None, upperDisplay = String.fromFloat model.operand1, lowerDisplay = "0" }
+
+            else
+                { model | operand1 = 0, lowerDisplay = "0" }
+
+        UpdateOperator op ->
+            let
+                operatorSymbol =
+                    case op of
+                        Add ->
+                            "+"
+
+                        Sub ->
+                            "-"
+
+                        Mult ->
+                            "*"
+
+                        Div ->
+                            "/"
+
+                        None ->
+                            ""
+            in
+            { model | operator = op, upperDisplay = String.fromFloat model.operand1 ++ " " ++ operatorSymbol }
+
+        Calculate ->
+            let
                 res =
-                    case model.operator of 
-                        "+" -> 
-                            String.fromFloat (o1 + o2)
+                    case model.operator of
+                        Add ->
+                            String.fromFloat (model.operand1 + model.operand2)
 
-                        "-" ->  
-                            String.fromFloat (o1 - o2)
-                        
-                        "*" ->
-                            String.fromFloat (o1 * o2)
-                        
-                        "/" ->
-                            if o2 == 0 then
+                        Sub ->
+                            String.fromFloat (model.operand1 - model.operand2)
+
+                        Mult ->
+                            String.fromFloat (model.operand1 * model.operand2)
+
+                        Div ->
+                            if model.operand2 == 0 then
                                 "Error: Division by zero"
-                            else
-                                String.fromFloat (o1 / o2)
 
-                        _ ->
+                            else
+                                String.fromFloat (model.operand1 / model.operand2)
+
+                        None ->
                             "Error: Unknown operation"
             in
-            { model | result = res, lowerDisplay = res, upperDisplay = model.upperDisplay ++ " " ++ model.operand2 ++ " = " }
+            { model | result = res, lowerDisplay = res, upperDisplay = model.upperDisplay ++ " " ++ String.fromFloat model.operand2 ++ " = " }
+
 
 view : Model -> Html Msg
-view model =   
+view model =
     div [ class "calculator" ]
         [ div [ class "display-container" ]
-        [ div [ class "upperDisplay" ] [ text model.upperDisplay ]
-        , div [ class "lowerDisplay" ] [ text model.lowerDisplay ]
-        ]
-        , div [ class "button-container" ] 
-        [ button [ class "button ce-button", onClick ClearEntry ] [ text "CE" ]
-        , button [ class "button c-button", onClick Clear ] [ text "C" ] 
-        ]
-        , div [ class "button-container" ] (List.map (\operand -> button [ class "button operand-button", onClick <| AppendToOperand (String.fromInt operand) ] [ text (String.fromInt operand) ]) (List.range 7 9)
-        ++ [ button [ class "button operation-button", onClick <| UpdateOperator "/"  ] [ text (String.fromChar (Char.fromCode 0x00F7)) ] ]
-        )
-        , div [ class "button-container" ] (List.map (\operand -> button [ class "button operand-button", onClick <| AppendToOperand (String.fromInt operand) ] [ text (String.fromInt operand) ]) (List.range 4 6)
-        ++ [ button [ class "button operation-button", onClick <| UpdateOperator "*" ] [ text (String.fromChar (Char.fromCode 0x00D7)) ] ]
-        )
-        , div [ class "button-container" ] (List.map (\operand -> button [ class "button operand-button", onClick <| AppendToOperand (String.fromInt operand) ] [ text (String.fromInt operand) ]) (List.range 1 3)
-        ++ [ button [ class "button operation-button", onClick <| UpdateOperator "-" ] [ text (String.fromChar (Char.fromCode 0x2212)) ] ]        
-        )
-        , div [ class "button-container" ] 
-            [ button [ class "button operand-button", onClick (AppendToOperand "0") ] [ text "0" ]
-            , button [ class "button dot-button", onClick (AppendToOperand ".") ] [ text "." ]
-            , button [ class "button operation-button", onClick Calculate ] [ text (String.fromChar (Char.fromCode 0x003D)) ]
-            , button [ class "button operation-button", onClick <| UpdateOperator "+" ] [ text (String.fromChar (Char.fromCode 0x002B)) ]
+            [ div [ class "upperDisplay" ] [ text model.upperDisplay ]
+            , div [ class "lowerDisplay" ] [ text model.lowerDisplay ]
+            ]
+        , div [ class "button-container" ]
+            [ button [ class "button ce-button", onClick ClearEntry ] [ text "CE" ]
+            , button [ class "button c-button", onClick Clear ] [ text "C" ]
+            ]
+        , div [ class "button-container" ]
+            (List.map (\operand -> button [ class "button operand-button", onClick <| AppendToOperand (toFloat operand) ] [ text (String.fromInt operand) ]) (List.range 7 9)
+                ++ [ button [ class "button operation-button", onClick <| UpdateOperator Div ] [ text (String.fromChar (Char.fromCode 0xF7)) ] ]
+            )
+        , div [ class "button-container" ]
+            (List.map (\operand -> button [ class "button operand-button", onClick <| AppendToOperand (toFloat operand) ] [ text (String.fromInt operand) ]) (List.range 4 6)
+                ++ [ button [ class "button operation-button", onClick <| UpdateOperator Mult ] [ text (String.fromChar (Char.fromCode 0xD7)) ] ]
+            )
+        , div [ class "button-container" ]
+            (List.map (\operand -> button [ class "button operand-button", onClick <| AppendToOperand (toFloat operand) ] [ text (String.fromInt operand) ]) (List.range 1 3)
+                ++ [ button [ class "button operation-button", onClick <| UpdateOperator Sub ] [ text (String.fromChar (Char.fromCode 0x2212)) ] ]
+            )
+        , div [ class "button-container" ]
+            [ button [ class "button operand-button", onClick <| AppendToOperand 0.0 ] [ text "0" ]
+            , div [ class "button block" ] []
+            , button [ class "button operation-button", onClick Calculate ] [ text (String.fromChar (Char.fromCode 0x3D)) ]
+            , button [ class "button operation-button", onClick <| UpdateOperator Add ] [ text (String.fromChar (Char.fromCode 0x2B)) ]
             ]
         ]
 
-main : Program () Model Msg
-main = 
-    Browser.sandbox { init = init, update = update, view = view }
-                     
 
+main : Program () Model Msg
+main =
+    Browser.sandbox { init = init, update = update, view = view }

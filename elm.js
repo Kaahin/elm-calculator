@@ -4370,7 +4370,8 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $author$project$Main$init = {lowerDisplay: '0', operand1: '', operand2: '', operator: '', result: '', upperDisplay: ''};
+var $author$project$Main$None = {$: 'None'};
+var $author$project$Main$init = {lowerDisplay: '0', operand1: 0, operand2: 0, operator: $author$project$Main$None, result: '', upperDisplay: ''};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5183,84 +5184,92 @@ var $elm$browser$Browser$sandbox = function (impl) {
 };
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$core$Basics$neq = _Utils_notEqual;
-var $elm$core$String$toFloat = _String_toFloat;
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'AppendToOperand':
-				var operand = msg.a;
-				if ((operand === '.') && A2($elm$core$String$contains, '.', model.lowerDisplay)) {
-					return model;
-				} else {
-					if (model.operator === '') {
-						var updatedOperand1 = _Utils_ap(model.operand1, operand);
-						return _Utils_update(
-							model,
-							{lowerDisplay: updatedOperand1, operand1: updatedOperand1});
-					} else {
-						var updatedOperand2 = _Utils_ap(model.operand2, operand);
-						return _Utils_update(
-							model,
-							{lowerDisplay: updatedOperand2, operand2: updatedOperand2});
-					}
-				}
+				var num = msg.a;
+				return _Utils_eq(model.operator, $author$project$Main$None) ? _Utils_update(
+					model,
+					{
+						lowerDisplay: $elm$core$String$fromFloat((model.operand1 * 10) + num),
+						operand1: (model.operand1 * 10) + num
+					}) : _Utils_update(
+					model,
+					{
+						lowerDisplay: $elm$core$String$fromFloat((model.operand2 * 10) + num),
+						operand2: (model.operand2 * 10) + num
+					});
 			case 'Clear':
-				return {lowerDisplay: '0', operand1: '', operand2: '', operator: '', result: '', upperDisplay: ''};
+				return $author$project$Main$init;
 			case 'ClearEntry':
-				return (model.result !== '') ? {lowerDisplay: '0', operand1: '', operand2: '', operator: '', result: '', upperDisplay: ''} : ((model.operator !== '') ? _Utils_update(
+				return (model.result !== '') ? $author$project$Main$init : ((!_Utils_eq(model.operator, $author$project$Main$None)) ? _Utils_update(
 					model,
-					{lowerDisplay: '0', operand2: '', operator: '', upperDisplay: model.operand1}) : _Utils_update(
+					{
+						lowerDisplay: '0',
+						operand2: 0,
+						operator: $author$project$Main$None,
+						upperDisplay: $elm$core$String$fromFloat(model.operand1)
+					}) : _Utils_update(
 					model,
-					{lowerDisplay: '0', operand1: ''}));
+					{lowerDisplay: '0', operand1: 0}));
 			case 'UpdateOperator':
 				var op = msg.a;
+				var operatorSymbol = function () {
+					switch (op.$) {
+						case 'Add':
+							return '+';
+						case 'Sub':
+							return '-';
+						case 'Mult':
+							return '*';
+						case 'Div':
+							return '/';
+						default:
+							return '';
+					}
+				}();
 				return _Utils_update(
 					model,
-					{operator: op, upperDisplay: model.operand1 + (' ' + op)});
+					{
+						operator: op,
+						upperDisplay: $elm$core$String$fromFloat(model.operand1) + (' ' + operatorSymbol)
+					});
 			default:
-				var o2 = A2(
-					$elm$core$Maybe$withDefault,
-					0,
-					$elm$core$String$toFloat(model.operand2));
-				var o1 = A2(
-					$elm$core$Maybe$withDefault,
-					0,
-					$elm$core$String$toFloat(model.operand1));
 				var res = function () {
-					var _v1 = model.operator;
-					switch (_v1) {
-						case '+':
-							return $elm$core$String$fromFloat(o1 + o2);
-						case '-':
-							return $elm$core$String$fromFloat(o1 - o2);
-						case '*':
-							return $elm$core$String$fromFloat(o1 * o2);
-						case '/':
-							return (!o2) ? 'Error: Division by zero' : $elm$core$String$fromFloat(o1 / o2);
+					var _v2 = model.operator;
+					switch (_v2.$) {
+						case 'Add':
+							return $elm$core$String$fromFloat(model.operand1 + model.operand2);
+						case 'Sub':
+							return $elm$core$String$fromFloat(model.operand1 - model.operand2);
+						case 'Mult':
+							return $elm$core$String$fromFloat(model.operand1 * model.operand2);
+						case 'Div':
+							return (!model.operand2) ? 'Error: Division by zero' : $elm$core$String$fromFloat(model.operand1 / model.operand2);
 						default:
 							return 'Error: Unknown operation';
 					}
 				}();
 				return _Utils_update(
 					model,
-					{lowerDisplay: res, result: res, upperDisplay: model.upperDisplay + (' ' + (model.operand2 + ' = '))});
+					{
+						lowerDisplay: res,
+						result: res,
+						upperDisplay: model.upperDisplay + (' ' + ($elm$core$String$fromFloat(model.operand2) + ' = '))
+					});
 		}
 	});
+var $author$project$Main$Add = {$: 'Add'};
 var $author$project$Main$AppendToOperand = function (a) {
 	return {$: 'AppendToOperand', a: a};
 };
 var $author$project$Main$Calculate = {$: 'Calculate'};
 var $author$project$Main$Clear = {$: 'Clear'};
 var $author$project$Main$ClearEntry = {$: 'ClearEntry'};
+var $author$project$Main$Div = {$: 'Div'};
+var $author$project$Main$Mult = {$: 'Mult'};
+var $author$project$Main$Sub = {$: 'Sub'};
 var $author$project$Main$UpdateOperator = function (a) {
 	return {$: 'UpdateOperator', a: a};
 };
@@ -5384,8 +5393,7 @@ var $author$project$Main$view = function (model) {
 									[
 										$elm$html$Html$Attributes$class('button operand-button'),
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$AppendToOperand(
-											$elm$core$String$fromInt(operand)))
+										$author$project$Main$AppendToOperand(operand))
 									]),
 								_List_fromArray(
 									[
@@ -5402,7 +5410,7 @@ var $author$project$Main$view = function (model) {
 								[
 									$elm$html$Html$Attributes$class('button operation-button'),
 									$elm$html$Html$Events$onClick(
-									$author$project$Main$UpdateOperator('/'))
+									$author$project$Main$UpdateOperator($author$project$Main$Div))
 								]),
 							_List_fromArray(
 								[
@@ -5427,8 +5435,7 @@ var $author$project$Main$view = function (model) {
 									[
 										$elm$html$Html$Attributes$class('button operand-button'),
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$AppendToOperand(
-											$elm$core$String$fromInt(operand)))
+										$author$project$Main$AppendToOperand(operand))
 									]),
 								_List_fromArray(
 									[
@@ -5445,7 +5452,7 @@ var $author$project$Main$view = function (model) {
 								[
 									$elm$html$Html$Attributes$class('button operation-button'),
 									$elm$html$Html$Events$onClick(
-									$author$project$Main$UpdateOperator('*'))
+									$author$project$Main$UpdateOperator($author$project$Main$Mult))
 								]),
 							_List_fromArray(
 								[
@@ -5470,8 +5477,7 @@ var $author$project$Main$view = function (model) {
 									[
 										$elm$html$Html$Attributes$class('button operand-button'),
 										$elm$html$Html$Events$onClick(
-										$author$project$Main$AppendToOperand(
-											$elm$core$String$fromInt(operand)))
+										$author$project$Main$AppendToOperand(operand))
 									]),
 								_List_fromArray(
 									[
@@ -5488,7 +5494,7 @@ var $author$project$Main$view = function (model) {
 								[
 									$elm$html$Html$Attributes$class('button operation-button'),
 									$elm$html$Html$Events$onClick(
-									$author$project$Main$UpdateOperator('-'))
+									$author$project$Main$UpdateOperator($author$project$Main$Sub))
 								]),
 							_List_fromArray(
 								[
@@ -5511,24 +5517,19 @@ var $author$project$Main$view = function (model) {
 							[
 								$elm$html$Html$Attributes$class('button operand-button'),
 								$elm$html$Html$Events$onClick(
-								$author$project$Main$AppendToOperand('0'))
+								$author$project$Main$AppendToOperand(0.0))
 							]),
 						_List_fromArray(
 							[
 								$elm$html$Html$text('0')
 							])),
 						A2(
-						$elm$html$Html$button,
+						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('button dot-button'),
-								$elm$html$Html$Events$onClick(
-								$author$project$Main$AppendToOperand('.'))
+								$elm$html$Html$Attributes$class('button block')
 							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('.')
-							])),
+						_List_Nil),
 						A2(
 						$elm$html$Html$button,
 						_List_fromArray(
@@ -5548,7 +5549,7 @@ var $author$project$Main$view = function (model) {
 							[
 								$elm$html$Html$Attributes$class('button operation-button'),
 								$elm$html$Html$Events$onClick(
-								$author$project$Main$UpdateOperator('+'))
+								$author$project$Main$UpdateOperator($author$project$Main$Add))
 							]),
 						_List_fromArray(
 							[
